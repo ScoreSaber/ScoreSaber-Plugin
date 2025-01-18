@@ -1,4 +1,5 @@
-﻿using SevenZip.Compression.LZMA;
+﻿using IPA.Utilities;
+using SevenZip.Compression.LZMA;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -43,7 +44,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
 
             var metadata = ReadMetadata(ref pointers.metadata);
 
-            if (metadata.Version == "2.0.0") {
+            if (metadata.Version == new Version("2.0.0")) {
                 return new ReplayFile() {
                     metadata = metadata,
                     poseKeyframes = ReadPoseGroupList(ref pointers.poseKeyframes),
@@ -54,7 +55,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                     multiplierKeyframes = ReadMultiplierEventList(ref pointers.multiplierKeyframes),
                     energyKeyframes = ReadEnergyEventList(ref pointers.energyKeyframes)
                 };
-            } else if (metadata.Version == "3.0.0") {
+            } else if (metadata.Version <= new Version("3.1.0")) {
                 return new ReplayFile() {
                     metadata = metadata,
                     poseKeyframes = ReadPoseGroupList(ref pointers.poseKeyframes),
@@ -87,21 +88,42 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private Metadata ReadMetadata(ref int offset) {
+            Version version = new Version(ReadString(ref offset));
 
-            return new Metadata() {
-                Version = ReadString(ref offset),
-                LevelID = ReadString(ref offset),
-                Difficulty = ReadInt(ref offset),
-                Characteristic = ReadString(ref offset),
-                Environment = ReadString(ref offset),
-                Modifiers = ReadStringArray(ref offset),
-                NoteSpawnOffset = ReadFloat(ref offset),
-                LeftHanded = ReadBool(ref offset),
-                InitialHeight = ReadFloat(ref offset),
-                RoomRotation = ReadFloat(ref offset),
-                RoomCenter = ReadVRPosition(ref offset),
-                FailTime = ReadFloat(ref offset)
-            };
+            if(version < new Version("3.1.0")) {
+                return new Metadata() {
+                    Version = version,
+                    LevelID = ReadString(ref offset),
+                    Difficulty = ReadInt(ref offset),
+                    Characteristic = ReadString(ref offset),
+                    Environment = ReadString(ref offset),
+                    Modifiers = ReadStringArray(ref offset),
+                    NoteSpawnOffset = ReadFloat(ref offset),
+                    LeftHanded = ReadBool(ref offset),
+                    InitialHeight = ReadFloat(ref offset),
+                    RoomRotation = ReadFloat(ref offset),
+                    RoomCenter = ReadVRPosition(ref offset),
+                    FailTime = ReadFloat(ref offset)
+                };
+            } else {
+                return new Metadata() {
+                    Version = version,
+                    LevelID = ReadString(ref offset),
+                    Difficulty = ReadInt(ref offset),
+                    Characteristic = ReadString(ref offset),
+                    Environment = ReadString(ref offset),
+                    Modifiers = ReadStringArray(ref offset),
+                    NoteSpawnOffset = ReadFloat(ref offset),
+                    LeftHanded = ReadBool(ref offset),
+                    InitialHeight = ReadFloat(ref offset),
+                    RoomRotation = ReadFloat(ref offset),
+                    RoomCenter = ReadVRPosition(ref offset),
+                    FailTime = ReadFloat(ref offset),
+                    GameVersion = new AlmostVersion(ReadString(ref offset)),
+                    PluginVersion = new Version(ReadString(ref offset)),
+                    Platform = ReadString(ref offset),
+                };
+            }
         }
 
         private VRPoseGroup ReadVRPoseGroup(ref int offset) {

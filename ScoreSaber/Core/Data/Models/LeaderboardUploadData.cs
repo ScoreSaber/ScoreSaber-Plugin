@@ -89,8 +89,10 @@ namespace ScoreSaber.Core.Data.Models {
             mappersAndLighters.AddRange(mappers);
             mappersAndLighters.AddRange(lighters);
 
-            if(mappersAndLighters.Count <= 1) {
-                return mappersAndLighters.FirstOrDefault();
+            if (mappersAndLighters.Count == 0)
+                return "";
+            if(mappersAndLighters.Count == 1) {
+                return mappersAndLighters.First();
             }
             return $"{string.Join(", ", mappersAndLighters.Take(mappersAndLighters.Count - 1))} & {mappersAndLighters.Last()}";
         }

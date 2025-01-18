@@ -17,6 +17,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         private readonly SiraLog _siraLog;
         private readonly SaberManager _saberManager;
         private readonly NoteEvent[] _sortedNoteEvents;
+        private readonly ReplayFile _replayFile;
         private readonly MemoryPoolContainer<GameNoteController> _gameNotePool;
         private readonly MemoryPoolContainer<GameNoteController> _burstSliderHeadNotePool;
         private readonly MemoryPoolContainer<BurstSliderGameNoteController> _burstSliderNotePool;
@@ -33,6 +34,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             _burstSliderNotePool = Accessors.BurstSliderNotePool(ref basicBeatmapObjectManager);
             _bombNotePool = Accessors.BombNotePool(ref basicBeatmapObjectManager);
             _sortedNoteEvents = file.noteKeyframes.OrderBy(nk => nk.Time).ToArray();
+            _replayFile = file;
         }
 
         public void Tick() {
@@ -115,7 +117,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             if (id.GameplayType is int gameplayType && gameplayType != (int)noteData.gameplayType)
                 return false;
 
-            if (id.ScoringType is int scoringType && scoringType != (int)noteData.scoringType)
+            if (!id.MatchesScoringType(noteData.scoringType, _replayFile.metadata.GameVersion))
                 return false;
 
             if (id.CutDirectionAngleOffset is float cutDirectionAngleOffset && !Mathf.Approximately(cutDirectionAngleOffset, noteData.cutDirectionAngleOffset))

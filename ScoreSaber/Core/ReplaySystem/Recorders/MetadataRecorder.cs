@@ -47,7 +47,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
             };
 
             return new Metadata() {
-                Version = "3.0.0",
+                Version = new Version("3.1.0"),
                 LevelID = _gameplayCoreSceneSetupData.beatmapLevel.levelID,
                 Difficulty = BeatmapDifficultyMethods.DefaultRating(_gameplayCoreSceneSetupData.beatmapKey.difficulty),
                 Characteristic = _gameplayCoreSceneSetupData.beatmapKey.beatmapCharacteristic.serializedName,
@@ -58,9 +58,12 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
                 InitialHeight = _gameplayCoreSceneSetupData.playerSpecificSettings.playerHeight,
                 RoomRotation = _settingsManager.settings.room.rotation,
                 RoomCenter = roomCenter,
-                FailTime = _failTime
+                FailTime = _failTime,
+                GameVersion = IPA.Utilities.UnityGame.GameVersion.SemverValue,
+                PluginVersion = Plugin.Instance.LibVersion,
+                Platform = "PC",
             };
-         
+
         }
 
         public string[] GetModifierList(GameplayModifiers modifiers) {
